@@ -1,6 +1,13 @@
 <resources>
+
+    <string name="KEY_ITEM_TEXT">item_text</string>
+    <string name="KEY_ITEM_POSITION">item_position</string>
+
     <string name="app_name">To do</string>
     <string name="text_box_hint">Add an item here!</string>
     <string name="add_text">Add</string>
+    <string name="update_item">Update the item</string>
+    <string name="save_text">Save</string>
+    <string name="edit_item">Edit item</string>
 
 </resources>

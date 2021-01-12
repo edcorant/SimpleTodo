@@ -1,8 +1,11 @@
 package com.example.simpletodo;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.Intent;
 import android.os.Bundle;
 import org.apache.commons.io.FileUtils;
 
@@ -20,6 +23,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private final String TAG = this.getClass().getCanonicalName();
+    private final int EDIT_TEXT_CODE = 100;
 
     // to-do list container
     List<String> items;
@@ -57,8 +61,20 @@ public class MainActivity extends AppCompatActivity {
                 saveItems();
             }
         };
+        ItemsAdapter.OnClickListener my_lisneter = new ItemsAdapter.OnClickListener() {
+            @Override
+            public void onItemClicked(int position) {
+                // create new activity
+                Intent i = new Intent(MainActivity.this, EditActivity.class);
+                // pass the data being edited
+                i.putExtra(getString(R.string.KEY_ITEM_TEXT), items.get(position));
+                i.putExtra(getString(R.string.KEY_ITEM_POSITION), position);
+                // display the activity
+                startActivityForResult(i, EDIT_TEXT_CODE);
+            }
+        };
 
-        my_todo_items = new ItemsAdapter(items, my_listener);
+        my_todo_items = new ItemsAdapter(items, my_listener, my_lisneter);
         todo_list.setAdapter(my_todo_items);
         todo_list.setLayoutManager(new LinearLayoutManager(this));
 
@@ -102,5 +118,24 @@ public class MainActivity extends AppCompatActivity {
         catch (IOException e) {
             Log.e(TAG, "Error writing to file", e);
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
+        if (resultCode == RESULT_OK && requestCode == EDIT_TEXT_CODE) {
+            String item_text = data.getStringExtra(getString(R.string.KEY_ITEM_TEXT));
+            int position = data.getExtras().getInt(getString(R.string.KEY_ITEM_POSITION));
+            items.set(position, item_text);
+            my_todo_items.notifyItemChanged(position);
+            saveItems();
+            Toast.makeText(getApplicationContext(), "Item at position " + position + " is now " + item_text, Toast.LENGTH_SHORT).show();
+        }
+
+        else {
+            Log.w(TAG, "Uknown call to onActivityResult()");
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
